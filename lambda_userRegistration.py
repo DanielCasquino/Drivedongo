@@ -6,6 +6,7 @@ import datetime
 s3 = boto3.client('s3')
 dynamodb = boto3.resource('dynamodb')
 table = dynamodb.Table('t_driveUsers')
+bucket_name = 'bucket-drive-main'
 
 def lambda_handler(event, context):
     try:
@@ -24,7 +25,7 @@ def lambda_handler(event, context):
                 }
 
             hashed_password = hashlib.sha256(password.encode()).hexdigest()
-            created_at = datetime.datetime.now(datetime.UTC).isoformat()
+            created_at = datetime.datetime.now(datetime.UTC).strftime('%Y-%m-%d %H:%M:%S')
 
             table.put_item(
                 Item={
@@ -35,7 +36,6 @@ def lambda_handler(event, context):
             )
 
             folder_key = f"{user_id}/"
-            bucket_name = 'bucket-drive-main'
             s3.put_object(Bucket=bucket_name, Key=folder_key) # Create a personal folder for new user
 
             message = {

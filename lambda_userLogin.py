@@ -1,7 +1,7 @@
 import uuid
 import boto3
 import hashlib
-from datetime import datetime, timedelta
+import datetime
 
 dynamodb = boto3.resource('dynamodb')
 table = dynamodb.Table('t_driveUsers')
@@ -25,7 +25,7 @@ def lambda_handler(event, context):
         hashed_password_bd = response['Item']['password']
         if hashed_password == hashed_password_bd:
             token = str(uuid.uuid4())
-            exp = datetime.now() + timedelta(minutes=60)
+            exp = datetime.datetime.now(datetime.UTC) + datetime.timedelta(minutes=60)
             tokenRegister = {
                 'token': token,
                 'user_id': user_id,

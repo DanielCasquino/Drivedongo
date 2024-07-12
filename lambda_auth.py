@@ -1,5 +1,5 @@
 import boto3
-from datetime import datetime
+import datetime
 
 dynamodb = boto3.resource('dynamodb')
 table = dynamodb.Table('t_driveTokens')
@@ -19,7 +19,7 @@ def lambda_handler(event, context):
         }
     else:
         expires = response['Item']['expires']
-        now = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
+        now = datetime.datetime.now(datetime.UTC).strftime('%Y-%m-%d %H:%M:%S')
         if now > expires:
             return {
                 'statusCode': 403,
