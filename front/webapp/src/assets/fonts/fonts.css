@@ -1,0 +1,16 @@
+@import url("https://fonts.googleapis.com/css2?family=Readex+Pro:wght@160..700&display=swap");
+
+@font-face {
+  font-family: "sfpro";
+  src: url("~@/assets/fonts/SF-Pro.ttf");
+  font-weight: normal;
+  font-style: normal;
+}
+
+.readex-pro {
+  font-family: "Readex Pro", sans-serif;
+  font-optical-sizing: auto;
+  font-weight: 400;
+  font-style: normal;
+  font-variation-settings: "HEXP" 0;
+}
