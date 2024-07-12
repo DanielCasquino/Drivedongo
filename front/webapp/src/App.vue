@@ -3,10 +3,12 @@
     <router-link to="/">Home</router-link> |
     <router-link to="/about">About</router-link>
   </nav> -->
-  <div class="absoluteOverlay">
-    <DarkModeToggle />
+  <div :class="{ dark: isDarkMode, light: !isDarkMode }">
+    <div class="absoluteOverlay">
+      <DarkModeToggle />
+    </div>
+    <router-view />
   </div>
-  <router-view :class="{ dark: isDarkMode, light: !isDarkMode }" />
 </template>
 
 <script>
@@ -30,8 +32,8 @@ export default {
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
   text-align: center;
-  --size-p: 14px;
-  --size-h: 26px;
+  --size-p: 13px;
+  --size-h1: 28px;
   width: 100dvw;
   height: 100dvh;
   max-width: 100%;

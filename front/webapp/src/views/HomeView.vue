@@ -177,6 +177,7 @@ input::placeholder {
 }
 
 h1 {
+  font-size: var(--size-h1);
   margin-left: 4px;
   font-weight: 800;
 }

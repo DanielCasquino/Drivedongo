@@ -6,7 +6,6 @@ table = dynamodb.Table('t_driveTokens')
 
 def lambda_handler(event, context):
     token = event['token']
-
     response = table.get_item(
         Key={
             'token': token
@@ -19,6 +18,7 @@ def lambda_handler(event, context):
         }
     else:
         expires = response['Item']['expires']
+        user_id = response['Item']['user_id']
         now = datetime.datetime.now(datetime.UTC).strftime('%Y-%m-%d %H:%M:%S')
         if now > expires:
             return {
@@ -29,5 +29,5 @@ def lambda_handler(event, context):
     # Salida (json)
     return {
         'statusCode': 200,
-        'body': 'Token is valid'
+        'body': user_id
     }
