@@ -1,22 +1,25 @@
 <template>
-  <!-- <nav>
-    <router-link to="/">Home</router-link> |
-    <router-link to="/about">About</router-link>
-  </nav> -->
   <div :class="{ dark: isDarkMode, light: !isDarkMode }">
     <router-view style="position: fixed; overflow: hidden" />
-    <DarkModeToggle />
-    <div class="circle" :style="circleStyle"></div>
+    <div class="sidebar">
+      <DarkModeToggle />
+      <LogoutButton />
+    </div>
+    <div class="circle" :style="circleStyle">
+      <img :src="circleIcon" alt="" />
+    </div>
   </div>
 </template>
 
 <script>
 import { mapGetters } from "vuex";
 import DarkModeToggle from "./components/DarkModeToggle.vue";
+import LogoutButton from "./components/LogoutButton.vue";
 
 export default {
   components: {
     DarkModeToggle,
+    LogoutButton,
   },
   data() {
     return {
@@ -27,16 +30,29 @@ export default {
       isCircleVisible: false,
       animationFrame: null,
       circleOpacity: 0.5,
-      interacting: false
+      interacting: false,
+      type: "",
     };
   },
   computed: {
     ...mapGetters(["isDarkMode"]),
     circleStyle() {
       return {
-        transform: `translate(${this.circleX}px, ${this.circleY}px) scale(${this.interacting ? 2 : 1})`,
+        transform: `translate(${this.circleX}px, ${this.circleY}px) scale(${
+          this.interacting ? 2 : 1
+        })`,
         opacity: this.isCircleVisible ? this.circleOpacity : 0,
       };
+    },
+    circleIcon() {
+      switch (this.type) {
+        default:
+          return require("@/assets/nothing.png");
+        case "input":
+          return require("@/assets/italic.svg");
+        case "link":
+          return require("@/assets/link.svg");
+      }
     },
   },
   methods: {
@@ -44,6 +60,12 @@ export default {
       const interactable = event.target.closest(".interactable");
       const teleport = event.target.closest(".teleport");
       this.interacting = interactable !== null; // interacting ?
+
+      if (this.interacting) {
+        this.type = interactable.dataset.type;
+      } else {
+        this.type = "";
+      }
 
       if (teleport) {
         const rect = interactable.getBoundingClientRect();
@@ -113,6 +135,10 @@ export default {
   max-height: 100%;
 }
 
+button {
+  user-select: none;
+}
+
 * {
   transition: background-color cubic-bezier(0.075, 0.82, 0.165, 1) 0.3s,
     color cubic-bezier(0.075, 0.82, 0.165, 1) 0.3s,
@@ -128,7 +154,7 @@ export default {
   --shadow: rgba(31, 38, 135, 0.2);
 
   --primary: rgb(255, 255, 255);
-  --secondary: rgb(250, 250, 252);
+  --secondary: rgb(248, 248, 250);
   --terciary: rgb(230, 230, 240);
   --quaternary: rgb(225, 225, 238);
 
@@ -138,6 +164,7 @@ export default {
   --primary-text-inverted: rgb(233, 233, 235);
 
   --identity: #345fdc;
+  --identity-hover: #224dcf;
 }
 
 .dark {
@@ -147,16 +174,22 @@ export default {
   --secondary-text: rgb(200, 200, 202);
   --shadow: rgba(0, 0, 0, 0.6);
 
-  --primary: rgb(40, 40, 40);
-  --secondary: rgb(28, 28, 30);
-  --terciary: rgb(58, 58, 60);
-  --quaternary: rgb(60, 61, 67);
+  --primary: rgb(28, 28, 30);
+  --secondary: rgb(34, 34, 36);
+  --terciary: rgb(44, 44, 46);
+  --quaternary: rgb(64, 64, 66);
 
   --placeholder: rgb(105, 105, 110);
   --button: rgb(85, 85, 90);
 
   --primary-text-inverted: rgb(18, 18, 20);
   --identity: #ffc107;
+  --identity-hover: #ebb106;
+  .circle {
+    img {
+      filter: invert(100%);
+    }
+  }
 }
 
 .circle {
@@ -169,5 +202,24 @@ export default {
   pointer-events: none;
   opacity: 0;
   transition: opacity 500ms linear, transform 100ms linear;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  img {
+    width: 18px;
+    aspect-ratio: 1/1;
+  }
+}
+
+.sidebar {
+  position: fixed;
+  right: 0;
+  height: 100%;
+  background: transparent;
+  box-sizing: border-box;
+  padding: 2dvw;
+  display: flex;
+  flex-direction: column;
+  gap: 24px 0;
 }
 </style>

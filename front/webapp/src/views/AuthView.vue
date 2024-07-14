@@ -8,13 +8,31 @@
           <h1 class="readex-pro">BucketTest</h1>
         </div>
         <!-- Holds email and password input -->
-        <form class="auth-form">
-          <input class="form-input interactable" type="text" placeholder="Email" data-type="input" />
-          <input class="form-input interactable" type="password" placeholder="Password" data-type="input" />
+        <form class="auth-form" @submit.prevent="handleSubmit">
+          <input
+            class="form-input interactable"
+            type="text"
+            v-model="user_id"
+            placeholder="Email"
+            data-type="input"
+          />
+          <input
+            class="form-input interactable"
+            v-model="password"
+            type="password"
+            placeholder="Password"
+            data-type="input"
+          />
         </form>
         <!-- Holds auth button -->
-        <button v-if="isSignup" class="form-button readex-pro interactable">Sign Up</button>
-        <button v-else class="form-button readex-pro interactable">Log In</button>
+        <button
+          class="form-button readex-pro interactable"
+          @click="handleSubmit"
+          :disabled="!submitEnabled"
+          data-type="link"
+        >
+          {{ isSignup ? "Sign Up" : "Log in" }}
+        </button>
         <!-- Holds prompt to switch auth mode -->
         <div class="auth-switch">
           <p>
@@ -34,6 +52,8 @@
 <script>
 import { mapGetters } from "vuex";
 import DarkModeToggle from "@/components/DarkModeToggle.vue";
+import { saveToken } from "@/utils/authUtils";
+import axios from "axios";
 
 export default {
   name: "AuthView",
@@ -45,11 +65,64 @@ export default {
       isSignup: false,
       user_id: "",
       password: "",
+      submitEnabled: true,
     };
   },
   methods: {
     toggleAuthMode() {
+      if (!this.submitEnabled) return;
       this.isSignup = !this.isSignup;
+    },
+    handleSubmit() {
+      if (!this.submitEnabled) return;
+      else this.submitEnabled = false;
+      // Prevent multiple submissions
+
+      if (this.isSignup) {
+        this.signup();
+      } else {
+        this.login();
+      } // Call method once
+    },
+    async login() {
+      try {
+        const loginResponse = await axios.post(
+          "https://ao9ww2ed5d.execute-api.us-east-1.amazonaws.com/dev/auth/login",
+          {
+            user_id: this.user_id,
+            password: this.password,
+          }
+        );
+        switch (loginResponse.data.statusCode) {
+          case 404:
+            throw new Error(loginResponse.data.body);
+          case 403:
+            throw new Error(loginResponse.data.body);
+          case 200:
+            saveToken(loginResponse);
+            this.$router.push("/drive");
+            break;
+        }
+      } catch (error) {
+        console.error("Login failed:", error);
+      }
+      this.submitEnabled = true;
+      console.log("finished");
+    },
+    async signup() {
+      try {
+        const signupResponse = await axios.post(
+          "https://ao9ww2ed5d.execute-api.us-east-1.amazonaws.com/dev/auth/register",
+          {
+            user_id: this.user_id,
+            password: this.password,
+          }
+        );
+        console.log("Signup successful, redirecting to login");
+        this.login();
+      } catch (error) {
+        console.error("Signup failed:", error);
+      }
     },
   },
   computed: {
@@ -73,10 +146,12 @@ export default {
   overflow: hidden;
 
   background-color: var(--primary);
-  background-image: radial-gradient(circle at 1px 1px,
-      var(--dots) 0.1dvw,
-      transparent 0);
-  background-size: 2.4dvw 2.4dvw;
+  background-image: radial-gradient(
+    circle at 1dvw 1dvw,
+    var(--dots) clamp(1px, 0.05dvw, 1.2px),
+    transparent 0
+  );
+  background-size: 2dvw 2dvw;
   color: var(--primary-text);
 
   font-size: 14px;
@@ -96,8 +171,6 @@ export default {
   width: 380px;
 
   background: var(--primary);
-
-  backdrop-filter: blur(0.1dvw);
   box-shadow: 0 1dvw 2dvw 0 var(--shadow);
   padding: 32px;
   border-radius: 32px;
@@ -106,7 +179,6 @@ export default {
   display: flex;
   flex-direction: column;
   justify-content: flex-end;
-
 }
 
 .auth-form {
@@ -127,9 +199,11 @@ export default {
   border-radius: 50px;
   padding: 25px;
   box-sizing: border-box;
+
+  color: var(--primary-text);
 }
 
-.form-input+.form-input {
+.form-input + .form-input {
   margin-top: 25px;
 }
 
@@ -145,7 +219,7 @@ input::placeholder {
   width: 100%;
   height: 50px;
 
-  background: var(--button);
+  background: var(--identity);
   color: var(--primary-text-inverted);
 
   border-radius: 50px;
@@ -155,11 +229,6 @@ input::placeholder {
 
   cursor: pointer;
   font-weight: 700;
-
-}
-
-.form-button:hover {
-  background: var(--identity);
 }
 
 .auth-switch {

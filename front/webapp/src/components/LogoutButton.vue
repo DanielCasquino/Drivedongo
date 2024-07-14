@@ -4,26 +4,29 @@
       'button interactable teleport',
       { dark: isDarkMode, light: !isDarkMode },
     ]"
-    @click="toggleDarkMode"
+    @click="doLogout"
   >
     <img :src="themeImage" alt="themeImage" draggable="false" />
   </button>
 </template>
 
 <script>
-import { mapGetters, mapActions } from "vuex";
+import { mapGetters } from "vuex";
+import { logout } from "@/utils/authUtils";
 
 export default {
   computed: {
     ...mapGetters(["isDarkMode"]),
     themeImage() {
       return this.isDarkMode
-        ? require("@/assets/lightmode.svg")
-        : require("@/assets/darkmode.svg");
+        ? require("@/assets/logoutlight.svg")
+        : require("@/assets/logout.svg");
     },
   },
   methods: {
-    ...mapActions(["toggleDarkMode"]),
+    doLogout() {
+      logout();
+    },
   },
 };
 </script>

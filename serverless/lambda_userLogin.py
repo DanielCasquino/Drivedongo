@@ -18,7 +18,7 @@ def lambda_handler(event, context):
     )
     if 'Item' not in response:
         return {
-            'statusCode': 403,
+            'statusCode': 404,
             'body': 'User does not exist'
         }
     else:
