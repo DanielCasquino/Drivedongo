@@ -1,30 +1,39 @@
 <template>
-  <div class="about">
+  <div class="drive">
     <div class="content">
       <div class="bucket-wrapper">
         <div class="header readex-pro">
           <h1>user@utec.edu.pe</h1>
-          <h2>2MB of 100MB used</h2>
         </div>
-        <div class="bucket-content"></div>
+        <div class="explorer">
+          <div class="navbar"></div>
+          <div class="files">
+            <File v-for="n in 0" />
+          </div>
+        </div>
       </div>
     </div>
   </div>
 </template>
 
 <script>
-
+import File from "@/components/File.vue";
+export default {
+  components: { File }
+}
 </script>
 
 <style scoped>
-.about {
+.drive {
   width: 100dvw;
   height: 100dvh;
   max-width: 100%;
   max-height: 100%;
   overflow: hidden;
   background-color: var(--primary);
-  background-image: radial-gradient(circle at 1px 1px, var(--primary-text) 0.7px, transparent 0);
+  background-image: radial-gradient(circle at 1px 1px,
+      var(--dots) 1px,
+      transparent 0);
   background-size: 30px 30px;
   color: var(--primary-text);
 }
@@ -71,16 +80,35 @@
   h2 {
     margin: 0;
     font-size: var(--size-p);
-    font-family: 'sfpro', sans-serif;
+    font-family: "sfpro", sans-serif;
     color: var(--placeholder);
     font-weight: 400;
   }
 }
 
-.bucket-content {
+.explorer {
   width: 100%;
   display: flex;
   flex: 1;
-  background: aliceblue;
+  background: var(--secondary);
+  overflow: hidden;
+}
+
+.navbar {
+  display: flex;
+}
+
+.files {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  align-items: center;
+  box-sizing: border-box;
+  padding: 32px;
+  gap: 8vmin;
+  overflow: auto;
 }
 </style>

@@ -49,6 +49,7 @@ lambda_client = boto3.client('lambda')
 sns_client = boto3.client('sns')
 s3_client = boto3.client('s3')
 bucket_name = 'bucket-drive-main'
+topic_arn = ''
 
 def upload_file_to_s3(bucket_name, folder_name, file_content, file_name):
     try:
@@ -90,7 +91,7 @@ def lambda_handler(event, context):
             'metadata': metadata
         }
         sns_client.publish(
-            TopicArn='arn:aws:sns:your-sns-topic-arn',
+            TopicArn=topic_arn,
             Message=json.dumps(sns_message)
         )
         return {
