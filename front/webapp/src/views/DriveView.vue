@@ -37,6 +37,8 @@ export default {
   },
   data() {
     return {
+      loadedFiles: [],
+      selectedFile: null,
       uploadedFileMetadata: null,
       uploadedFileBase64: null,
     };
@@ -60,11 +62,9 @@ export default {
   overflow: hidden;
 
   background-color: var(--primary);
-  background-image: radial-gradient(
-    circle at 1dvw 1dvw,
-    var(--dots) clamp(1px, 0.05dvw, 1.2px),
-    transparent 0
-  );
+  background-image: radial-gradient(circle at 1dvw 1dvw,
+      var(--dots) 0.1dvw,
+      transparent 0);
   background-size: 2dvw 2dvw;
   color: var(--primary-text);
 

@@ -38,9 +38,8 @@ export default {
     ...mapGetters(["isDarkMode"]),
     circleStyle() {
       return {
-        transform: `translate(${this.circleX}px, ${this.circleY}px) scale(${
-          this.interacting ? 2 : 1
-        })`,
+        transform: `translate(${this.circleX}px, ${this.circleY}px) scale(${this.interacting ? 2 : 1
+          })`,
         opacity: this.isCircleVisible ? this.circleOpacity : 0,
       };
     },
@@ -143,7 +142,8 @@ button {
   transition: background-color cubic-bezier(0.075, 0.82, 0.165, 1) 0.3s,
     color cubic-bezier(0.075, 0.82, 0.165, 1) 0.3s,
     outline cubic-bezier(0.075, 0.82, 0.165, 1) 0.3s,
-    opacity cubic-bezier(0.075, 0.82, 0.165, 1) 0.3s;
+    opacity cubic-bezier(0.075, 0.82, 0.165, 1) 0.3s,
+    outline cubic-bezier(0.075, 0.82, 0.165, 1) 0.3s;
 }
 
 .light {
@@ -165,6 +165,9 @@ button {
 
   --identity: #345fdc;
   --identity-hover: #224dcf;
+
+  --error: #dc5334;
+  --error-bg: rgb(255, 248, 248);
 }
 
 .dark {
@@ -183,9 +186,15 @@ button {
   --button: rgb(85, 85, 90);
 
   --primary-text-inverted: rgb(18, 18, 20);
+
   --identity: #ffc107;
   --identity-hover: #ebb106;
-  .circle {
+
+  --error: #dc5334;
+  --error-bg: rgb(38, 34, 34);
+
+
+  -error .circle {
     img {
       filter: invert(100%);
     }
@@ -205,6 +214,7 @@ button {
   display: flex;
   justify-content: center;
   align-items: center;
+
   img {
     width: 18px;
     aspect-ratio: 1/1;

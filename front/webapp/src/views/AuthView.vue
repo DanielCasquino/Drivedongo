@@ -9,28 +9,14 @@
         </div>
         <!-- Holds email and password input -->
         <form class="auth-form" @submit.prevent="handleSubmit">
-          <input
-            class="form-input interactable"
-            type="text"
-            v-model="user_id"
-            placeholder="Email"
-            data-type="input"
-          />
-          <input
-            class="form-input interactable"
-            v-model="password"
-            type="password"
-            placeholder="Password"
-            data-type="input"
-          />
+          <input class="form-input interactable" :class="{ 'input-error': uidError }" @click="clearErrors" type="text"
+            v-model="user_id" placeholder="Email" data-type="input" />
+          <input class="form-input interactable" :class="{ 'input-error': passError }" @click="clearErrors"
+            v-model="password" type="password" placeholder="Password" data-type="input" />
         </form>
         <!-- Holds auth button -->
-        <button
-          class="form-button readex-pro interactable"
-          @click="handleSubmit"
-          :disabled="!submitEnabled"
-          data-type="link"
-        >
+        <button class="form-button readex-pro interactable" :class="{ 'button-disabled': !submitEnabled }"
+          @click="handleSubmit" :disabled="!submitEnabled" type="submit" data-type="link">
           {{ isSignup ? "Sign Up" : "Log in" }}
         </button>
         <!-- Holds prompt to switch auth mode -->
@@ -52,8 +38,7 @@
 <script>
 import { mapGetters } from "vuex";
 import DarkModeToggle from "@/components/DarkModeToggle.vue";
-import { saveToken } from "@/utils/authUtils";
-import axios from "axios";
+import { login, signup } from "@/utils/authUtils";
 
 export default {
   name: "AuthView",
@@ -66,64 +51,44 @@ export default {
       user_id: "",
       password: "",
       submitEnabled: true,
+      uidError: false,
+      passError: false
     };
   },
   methods: {
     toggleAuthMode() {
       if (!this.submitEnabled) return;
       this.isSignup = !this.isSignup;
+      this.error = false;
     },
-    handleSubmit() {
-      if (!this.submitEnabled) return;
-      else this.submitEnabled = false;
-      // Prevent multiple submissions
-
-      if (this.isSignup) {
-        this.signup();
-      } else {
-        this.login();
-      } // Call method once
-    },
-    async login() {
+    async handleSubmit() {
       try {
-        const loginResponse = await axios.post(
-          "https://ao9ww2ed5d.execute-api.us-east-1.amazonaws.com/dev/auth/login",
-          {
-            user_id: this.user_id,
-            password: this.password,
-          }
-        );
-        switch (loginResponse.data.statusCode) {
-          case 404:
-            throw new Error(loginResponse.data.body);
-          case 403:
-            throw new Error(loginResponse.data.body);
-          case 200:
-            saveToken(loginResponse);
-            this.$router.push("/drive");
-            break;
+        if (!this.submitEnabled) return;
+        else this.submitEnabled = false;
+        this.uidError = false;
+        this.passError = false;
+
+        if (this.isSignup) {
+          await signup(this.user_id, this.password);
+        } else {
+          await login(this.user_id, this.password);
         }
-      } catch (error) {
-        console.error("Login failed:", error);
+      }
+      catch (e) {
+        switch (e.statusCode) {
+          case 400:
+          case 403: this.passError = true;
+          case 404: this.uidError = true; break;
+          default: break;
+        }
       }
       this.submitEnabled = true;
-      console.log("finished");
+      // Prevent multiple submissions
     },
-    async signup() {
-      try {
-        const signupResponse = await axios.post(
-          "https://ao9ww2ed5d.execute-api.us-east-1.amazonaws.com/dev/auth/register",
-          {
-            user_id: this.user_id,
-            password: this.password,
-          }
-        );
-        console.log("Signup successful, redirecting to login");
-        this.login();
-      } catch (error) {
-        console.error("Signup failed:", error);
-      }
-    },
+    clearErrors() {
+      this.uidError = false;
+      this.passError = false;
+    }
   },
   computed: {
     ...mapGetters(["isDarkMode"]),
@@ -146,11 +111,9 @@ export default {
   overflow: hidden;
 
   background-color: var(--primary);
-  background-image: radial-gradient(
-    circle at 1dvw 1dvw,
-    var(--dots) clamp(1px, 0.05dvw, 1.2px),
-    transparent 0
-  );
+  background-image: radial-gradient(circle at 1dvw 1dvw,
+      var(--dots) 0.1dvw,
+      transparent 0);
   background-size: 2dvw 2dvw;
   color: var(--primary-text);
 
@@ -203,7 +166,7 @@ export default {
   color: var(--primary-text);
 }
 
-.form-input + .form-input {
+.form-input+.form-input {
   margin-top: 25px;
 }
 
@@ -213,6 +176,31 @@ input:focus {
 
 input::placeholder {
   color: var(--placeholder);
+}
+
+.input-error {
+  background: var(--error-bg);
+  outline: 2px solid var(--error);
+  animation: errorShake 0.3s cubic-bezier(0.075, 0.82, 0.165, 1);
+  animation-fill-mode: forwards;
+}
+
+@keyframes errorShake {
+  0% {
+    transform: translateX(-1dvw);
+  }
+
+  33% {
+    transform: translateX(1dvw)
+  }
+
+  66% {
+    transform: translateX(-1dvw);
+  }
+
+  100% {
+    transform: translateX(0dvw);
+  }
 }
 
 .form-button {
@@ -229,6 +217,10 @@ input::placeholder {
 
   cursor: pointer;
   font-weight: 700;
+}
+
+.button-disabled {
+  background: var(--button);
 }
 
 .auth-switch {

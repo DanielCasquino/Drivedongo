@@ -10,6 +10,13 @@ tokenTable = dynamodb.Table('t_driveTokens')
 def lambda_handler(event, context):
     user_id = event.get('user_id')
     password = event.get('password')
+    
+    if not user_id or not password:
+        return {
+            "statusCode": 400,
+            "body": 'Email and password are required'
+        }
+    
     hashed_password = hashlib.sha256(password.encode()).hexdigest()
     response = table.get_item(
         Key={
