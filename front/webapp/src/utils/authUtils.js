@@ -26,11 +26,15 @@ export async function checkAuth() {
         },
       }
     );
-    switch (authResponse.data.statusCode) {
+    const formattedResponse = {
+      statusCode: authResponse.data.statusCode,
+      body: authResponse.data.body,
+    };
+    switch (formattedResponse.statusCode) {
       case 404:
-        throw new Error(authResponse.data.body);
+        throw new CustomError.fromJSON(formattedResponse);
       case 403:
-        throw new Error(authResponse.data.body);
+        throw new CustomError.fromJSON(formattedResponse);
       case 200:
         console.log("User token is valid");
         return true;
@@ -55,10 +59,19 @@ export async function signup(uid, pass) {
         password: pass,
       }
     );
-    console.log("Signup successful, redirecting to login");
-    login(uid, pass);
+    const formattedResponse = {
+      statusCode: signupResponse.data.statusCode,
+      body: signupResponse.data.body,
+    };
+    switch (formattedResponse.statusCode) {
+      default:
+        throw CustomError.fromJSON(formattedResponse);
+      case 200:
+        login(uid, pass);
+        break;
+    }
   } catch (error) {
-    console.error("Signup failed:", error);
+    throw error;
   }
 }
 

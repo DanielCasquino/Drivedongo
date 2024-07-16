@@ -6,6 +6,7 @@
 
 <script>
 export default {
+  name: "FileUpload",
   data() {
     return {
       fileMetadata: null,

@@ -27,30 +27,34 @@
 </template>
 
 <script>
-import FileCard from "@/components/FileCard.vue";
 import FileUpload from "@/components/FileUpload.vue";
+import { useFileStore } from "@/stores/file-store";
+import { computed } from "vue";
 
 export default {
   components: {
-    FileCard,
     FileUpload,
   },
-  data() {
-    return {
-      loadedFiles: [],
-      selectedFile: null,
-      uploadedFileMetadata: null,
-      uploadedFileBase64: null,
+  setup() {
+    const fileStore = useFileStore();
+
+    const uploadedFileMetadata = computed(() => fileStore.uploadedFileMetadata);
+    const uploadedFileBase64 = computed(() => fileStore.uploadedFileBase64);
+
+    const handleFileUploaded = (payload) => {
+      fileStore.setFileMetadata(payload.fileMetadata);
+      fileStore.setFileBase64(payload.fileBase64);
     };
-  },
-  methods: {
-    handleFileUploaded(payload) {
-      this.uploadedFileMetadata = payload.fileMetadata;
-      this.uploadedFileBase64 = payload.fileBase64;
-    },
+
+    return {
+      uploadedFileMetadata,
+      uploadedFileBase64,
+      handleFileUploaded,
+    };
   },
 };
 </script>
+
 
 <style scoped>
 .drive {

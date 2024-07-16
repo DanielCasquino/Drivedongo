@@ -3,13 +3,12 @@ import AuthView from "../views/AuthView.vue";
 import { checkAuth } from "@/utils/authUtils";
 import DriveView from "@/views/DriveView.vue";
 
-
 const routes = [
   {
     path: "/",
     name: "auth",
     component: AuthView,
-    meta: {requiresAuth: false}
+    meta: { requiresAuth: false },
   },
   {
     path: "/drive",
@@ -18,7 +17,7 @@ const routes = [
     // this generates a separate chunk (about.[hash].js) for this route
     // which is lazy-loaded when the route is visited.
     component: DriveView,
-    meta: {requiresAuth: true}
+    meta: { requiresAuth: true },
   },
 ];
 
@@ -28,7 +27,7 @@ const router = createRouter({
 });
 
 router.beforeEach(async (to, from, next) => {
-  console.log("Loading " + from.name + " to " + to.name)
+  console.log("Loading " + from.name + " to " + to.name);
   if (to.meta.requiresAuth) {
     const isAuthenticated = await checkAuth();
     if (!isAuthenticated) {

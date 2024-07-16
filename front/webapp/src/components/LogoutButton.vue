@@ -1,35 +1,42 @@
 <template>
-  <button
-    :class="[
-      'button interactable teleport',
-      { dark: isDarkMode, light: !isDarkMode },
-    ]"
-    @click="doLogout"
-  >
+  <button :class="[
+    'button interactable teleport',
+    { dark: isDarkMode, light: !isDarkMode },
+  ]" @click="doLogout">
     <img :src="themeImage" alt="themeImage" draggable="false" />
   </button>
 </template>
 
 <script>
-import { mapGetters } from "vuex";
+import { useThemeStore } from "@/stores/theme-store";
+import { computed } from 'vue';
 import { logout } from "@/utils/authUtils";
 
 export default {
-  computed: {
-    ...mapGetters(["isDarkMode"]),
-    themeImage() {
-      return this.isDarkMode
-        ? require("@/assets/logoutlight.svg")
-        : require("@/assets/logout.svg");
-    },
-  },
-  methods: {
-    doLogout() {
+  setup() {
+    const themeStore = useThemeStore();
+
+    const themeImage = computed(() =>
+      themeStore.get
+        ? require('@/assets/logoutlight.svg')
+        : require('@/assets/logout.svg')
+    );
+
+    const isDarkMode = computed(() => themeStore.get);
+
+    const doLogout = () => {
       logout();
-    },
+    };
+
+    return {
+      isDarkMode,
+      themeImage,
+      doLogout,
+    };
   },
 };
 </script>
+
 
 <style scoped>
 .button {

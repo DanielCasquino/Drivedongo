@@ -1,6 +1,9 @@
 <template>
   <div :class="{ dark: isDarkMode, light: !isDarkMode }">
     <router-view style="position: fixed; overflow: hidden" />
+    <div class="notifications">
+      <PushNotification />
+    </div>
     <div class="sidebar">
       <DarkModeToggle />
       <LogoutButton />
@@ -12,39 +15,40 @@
 </template>
 
 <script>
-import { mapGetters } from "vuex";
+import { useThemeStore } from "@/stores/theme-store";
+import { computed, ref, onMounted, onBeforeUnmount } from 'vue';
 import DarkModeToggle from "./components/DarkModeToggle.vue";
 import LogoutButton from "./components/LogoutButton.vue";
+import PushNotification from "./components/PushNotification.vue";
 
 export default {
   components: {
     DarkModeToggle,
     LogoutButton,
+    PushNotification
   },
-  data() {
-    return {
-      mouseX: 0,
-      mouseY: 0,
-      circleX: 0,
-      circleY: 0,
-      isCircleVisible: false,
-      animationFrame: null,
-      circleOpacity: 0.5,
-      interacting: false,
-      type: "",
-    };
-  },
-  computed: {
-    ...mapGetters(["isDarkMode"]),
-    circleStyle() {
+  setup() {
+    const themeStore = useThemeStore();
+
+    const mouseX = ref(0);
+    const mouseY = ref(0);
+    const circleX = ref(0);
+    const circleY = ref(0);
+    const isCircleVisible = ref(false);
+    const animationFrame = ref(null);
+    const circleOpacity = ref(0.5);
+    const interacting = ref(false);
+    const type = ref("");
+
+    const circleStyle = computed(() => {
       return {
-        transform: `translate(${this.circleX}px, ${this.circleY}px) scale(${this.interacting ? 2 : 1
-          })`,
-        opacity: this.isCircleVisible ? this.circleOpacity : 0,
+        transform: `translate(${circleX.value}px, ${circleY.value}px) scale(${interacting.value ? 2 : 1})`,
+        opacity: isCircleVisible.value ? circleOpacity.value : 0,
       };
-    },
-    circleIcon() {
-      switch (this.type) {
+    });
+
+    const circleIcon = computed(() => {
+      switch (type.value) {
         default:
           return require("@/assets/nothing.png");
         case "input":
@@ -52,73 +56,85 @@ export default {
         case "link":
           return require("@/assets/link.svg");
       }
-    },
-  },
-  methods: {
-    updatePosition(event) {
+    });
+
+    const updatePosition = (event) => {
       const interactable = event.target.closest(".interactable");
       const teleport = event.target.closest(".teleport");
-      this.interacting = interactable !== null; // interacting ?
+      interacting.value = interactable !== null;
 
-      if (this.interacting) {
-        this.type = interactable.dataset.type;
+      if (interacting.value) {
+        type.value = interactable.dataset.type;
       } else {
-        this.type = "";
+        type.value = "";
       }
 
       if (teleport) {
         const rect = interactable.getBoundingClientRect();
-        this.mouseX = rect.left + rect.width / 2 - 10; // Adjusting for the circle radius
-        this.mouseY = rect.top + rect.height / 2 - 10; // Adjusting for the circle radius
+        mouseX.value = rect.left + rect.width / 2 - 10; // Adjusting for the circle radius
+        mouseY.value = rect.top + rect.height / 2 - 10; // Adjusting for the circle radius
       } else {
-        this.mouseX = event.clientX - 10; // Adjusting for the circle radius
-        this.mouseY = event.clientY - 10; // Adjusting for the circle radius
+        mouseX.value = event.clientX - 10; // Adjusting for the circle radius
+        mouseY.value = event.clientY - 10; // Adjusting for the circle radius
       }
 
-      if (!this.animationFrame) {
-        this.animateCircle();
+      if (!animationFrame.value) {
+        animateCircle();
       }
-    },
-    animateCircle() {
+    };
+
+    const animateCircle = () => {
       const stiffness = 0.4;
       const damping = 1;
 
-      const deltaX = this.mouseX - this.circleX;
-      const deltaY = this.mouseY - this.circleY;
+      const deltaX = mouseX.value - circleX.value;
+      const deltaY = mouseY.value - circleY.value;
 
       const velocityX = deltaX * stiffness;
       const velocityY = deltaY * stiffness;
 
-      this.circleX += velocityX * damping;
-      this.circleY += velocityY * damping;
+      circleX.value += velocityX * damping;
+      circleY.value += velocityY * damping;
 
-      this.animationFrame = requestAnimationFrame(this.animateCircle);
-    },
-    hideCircle() {
-      this.isCircleVisible = false;
-      cancelAnimationFrame(this.animationFrame);
-      this.animationFrame = null;
-    },
-    showCircle() {
-      this.isCircleVisible = true;
-      if (!this.animationFrame) {
-        this.animateCircle();
+      animationFrame.value = requestAnimationFrame(animateCircle);
+    };
+
+    const hideCircle = () => {
+      isCircleVisible.value = false;
+      cancelAnimationFrame(animationFrame.value);
+      animationFrame.value = null;
+    };
+
+    const showCircle = () => {
+      isCircleVisible.value = true;
+      if (!animationFrame.value) {
+        animateCircle();
       }
-    },
-  },
-  mounted() {
-    document.addEventListener("mousemove", this.updatePosition);
-    document.addEventListener("mouseleave", this.hideCircle);
-    document.addEventListener("mouseenter", this.showCircle);
-  },
-  beforeDestroy() {
-    document.removeEventListener("mousemove", this.updatePosition);
-    document.removeEventListener("mouseleave", this.hideCircle);
-    document.removeEventListener("mouseenter", this.showCircle);
-    cancelAnimationFrame(this.animationFrame);
+    };
+
+    onMounted(() => {
+      document.addEventListener("mousemove", updatePosition);
+      document.addEventListener("mouseleave", hideCircle);
+      document.addEventListener("mouseenter", showCircle);
+    });
+
+    onBeforeUnmount(() => {
+      document.removeEventListener("mousemove", updatePosition);
+      document.removeEventListener("mouseleave", hideCircle);
+      document.removeEventListener("mouseenter", showCircle);
+      cancelAnimationFrame(animationFrame.value);
+    });
+
+    return {
+      themeStore,
+      isDarkMode: computed(() => themeStore.get),
+      circleStyle,
+      circleIcon,
+    };
   },
 };
 </script>
+
 
 <style>
 #app {
@@ -167,7 +183,8 @@ button {
   --identity-hover: #224dcf;
 
   --error: #dc5334;
-  --error-bg: rgb(255, 248, 248);
+  --error-outline: #dc5334;
+  --error-bg: rgb(255, 245, 245);
 }
 
 .dark {
@@ -191,10 +208,11 @@ button {
   --identity-hover: #ebb106;
 
   --error: #dc5334;
-  --error-bg: rgb(38, 34, 34);
+  --error-outline: #b2533e;
+  --error-bg: rgb(44, 34, 34);
 
 
-  -error .circle {
+  .circle {
     img {
       filter: invert(100%);
     }
@@ -231,5 +249,16 @@ button {
   display: flex;
   flex-direction: column;
   gap: 24px 0;
+}
+
+.notifications {
+  position: fixed;
+  width: 100%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  background: transparent;
+  height: calc(50dvh - 210px);
+  pointer-events: none;
 }
 </style>

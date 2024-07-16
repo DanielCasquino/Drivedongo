@@ -26,7 +26,7 @@
               isSignup ? "Already have an account?" : "Don't have an account?"
             }}
           </p>
-          <a class="interactable" href="#" @click.prevent="toggleAuthMode">
+          <a class="interactable" href="#" @click.prevent="toggleAuthMode" data-type="link">
             &nbsp;{{ isSignup ? "Log in." : "Sign up." }}
           </a>
         </div>
@@ -36,15 +36,13 @@
 </template>
 
 <script>
-import { mapGetters } from "vuex";
-import DarkModeToggle from "@/components/DarkModeToggle.vue";
+import { useThemeStore } from "@/stores/theme-store";
+import { useNotificationStore } from "@/stores/notification-store";
+import { computed } from "vue";
 import { login, signup } from "@/utils/authUtils";
 
 export default {
   name: "AuthView",
-  components: {
-    DarkModeToggle,
-  },
   data() {
     return {
       isSignup: false,
@@ -67,7 +65,6 @@ export default {
         else this.submitEnabled = false;
         this.uidError = false;
         this.passError = false;
-
         if (this.isSignup) {
           await signup(this.user_id, this.password);
         } else {
@@ -77,8 +74,9 @@ export default {
       catch (e) {
         switch (e.statusCode) {
           case 400:
-          case 403: this.passError = true;
-          case 404: this.uidError = true; break;
+          case 403:
+          case 404: this.uidError = true; this.passError = true;
+            this.sendNoti(e.statusCode, e.body); break;
           default: break;
         }
       }
@@ -88,15 +86,22 @@ export default {
     clearErrors() {
       this.uidError = false;
       this.passError = false;
-    }
+    },
   },
-  computed: {
-    ...mapGetters(["isDarkMode"]),
-    bucketImage() {
-      return this.isDarkMode
+  setup() {
+    const themeStore = useThemeStore();
+    const notiStore = useNotificationStore();
+    const bucketImage = computed(() => {
+      return themeStore.get
         ? require("@/assets/bucket.png")
         : require("@/assets/bucket.webp");
-    },
+    });
+
+    return {
+      bucketImage,
+      isDarkMode: computed(() => themeStore.get),
+      sendNoti: computed(() => notiStore.show)
+    };
   },
 };
 </script>
@@ -180,7 +185,7 @@ input::placeholder {
 
 .input-error {
   background: var(--error-bg);
-  outline: 2px solid var(--error);
+  outline: 2px solid var(--error-outline);
   animation: errorShake 0.3s cubic-bezier(0.075, 0.82, 0.165, 1);
   animation-fill-mode: forwards;
 }

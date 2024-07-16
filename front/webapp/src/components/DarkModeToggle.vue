@@ -1,32 +1,33 @@
 <template>
-  <button
-    :class="[
-      'button interactable teleport',
-      { dark: isDarkMode, light: !isDarkMode },
-    ]"
-    @click="toggleDarkMode"
-  >
+  <button :class="['button interactable teleport', { dark: themeStore.get, light: !themeStore.get }]"
+    @click="themeStore.toggle">
     <img :src="themeImage" alt="themeImage" draggable="false" />
   </button>
 </template>
 
 <script>
-import { mapGetters, mapActions } from "vuex";
+import { useThemeStore } from "@/stores/theme-store";
+import { computed } from 'vue';
 
 export default {
-  computed: {
-    ...mapGetters(["isDarkMode"]),
-    themeImage() {
-      return this.isDarkMode
-        ? require("@/assets/lightmode.svg")
-        : require("@/assets/darkmode.svg");
-    },
-  },
-  methods: {
-    ...mapActions(["toggleDarkMode"]),
+  name: "DarkModeToggle",
+  setup() {
+    const themeStore = useThemeStore();
+
+    const themeImage = computed(() =>
+      themeStore.get
+        ? require('@/assets/lightmode.svg')
+        : require('@/assets/darkmode.svg')
+    );
+
+    return {
+      themeStore,
+      themeImage,
+    };
   },
 };
 </script>
+
 
 <style scoped>
 .button {
