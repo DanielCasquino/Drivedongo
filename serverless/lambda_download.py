@@ -1,6 +1,5 @@
 import boto3
 import json
-import base64
 
 s3 = boto3.client('s3')
 bucket_name = 'bucket-drive-main'
@@ -10,25 +9,22 @@ def lambda_handler(event, context):
     file_name = event['file_name']
 
     try:
-        response = s3.get_object(
-            Bucket=bucket_name,
-            Key=f"{user_id}/{file_name}"
+        # Generar una URL pre-firmada para la descarga del archivo
+        pre_signed_url = s3.generate_presigned_url(
+            'get_object',
+            Params={
+                'Bucket': bucket_name,
+                'Key': f"{user_id}/{file_name}"
+            },
+            ExpiresIn=3600 # La URL expirará en 1 hora
         )
-        file_content = response['Body'].read()
-
-        encoded_file_content = base64.b64encode(file_content).decode('utf-8')
 
         return {
             'statusCode': 200,
             'body': json.dumps({
                 'file_name': file_name,
-                'file_content': encoded_file_content
-            }),
-            'isBase64Encoded': True,
-            'headers': {
-                'Content-Disposition': f'attachment; filename={file_name}',
-                'Content-Type': response['ContentType']
-            }
+                'download_url': pre_signed_url
+            })
         }
     except Exception as e:
         return {
