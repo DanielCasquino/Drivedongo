@@ -15,7 +15,7 @@ def lambda_handler(event, context):
                 'Bucket': bucket_name,
                 'Key': f"{user_id}/{file_name}"
             },
-            ExpiresIn=3600 # Se expira en 1 h
+            ExpiresIn=1800 # Se expira en 1 h
         )
 
         return {
