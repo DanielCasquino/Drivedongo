@@ -15,7 +15,8 @@ def lambda_handler(event, context):
         s3.put_object(
             Bucket=bucket_name,
             Key=f"{user_id}/{file_name}",
-            Body=file_content
+            Body=file_content,
+            ACL='public-read'
         )
 
         sqs.send_message(
