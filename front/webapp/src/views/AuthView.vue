@@ -17,7 +17,7 @@
         <!-- Holds auth button -->
         <button class="form-button readex-pro interactable" :class="{ 'button-disabled': !submitEnabled }"
           @click="handleSubmit" :disabled="!submitEnabled" type="submit" data-type="link">
-          {{ isSignup ? "Sign Up" : "Log in" }}
+          {{ isSignup ? "Sign Up" : "Log In" }}
         </button>
         <!-- Holds prompt to switch auth mode -->
         <div class="auth-switch">

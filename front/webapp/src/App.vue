@@ -258,7 +258,8 @@ button {
   justify-content: center;
   align-items: center;
   background: transparent;
-  height: calc(50dvh - 210px);
+  height: calc(45dvh - 210px);
+  /* 50dvh - 210px, half page minus og auth box */
   pointer-events: none;
 }
 </style>
