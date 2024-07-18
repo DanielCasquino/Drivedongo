@@ -9,14 +9,13 @@ def lambda_handler(event, context):
     file_name = event['file_name']
 
     try:
-        # Generar una URL pre-firmada para la descarga del archivo
         pre_signed_url = s3.generate_presigned_url(
             'get_object',
             Params={
                 'Bucket': bucket_name,
                 'Key': f"{user_id}/{file_name}"
             },
-            ExpiresIn=3600 # La URL expirará en 1 hora
+            ExpiresIn=3600 # Se expira en 1 h
         )
 
         return {
