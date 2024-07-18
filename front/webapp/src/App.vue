@@ -16,7 +16,7 @@
 
 <script>
 import { useThemeStore } from "@/stores/theme-store";
-import { computed, ref, onMounted, onBeforeUnmount } from 'vue';
+import { computed, ref, onMounted, onBeforeUnmount } from "vue";
 import DarkModeToggle from "./components/DarkModeToggle.vue";
 import LogoutButton from "./components/LogoutButton.vue";
 import PushNotification from "./components/PushNotification.vue";
@@ -25,7 +25,7 @@ export default {
   components: {
     DarkModeToggle,
     LogoutButton,
-    PushNotification
+    PushNotification,
   },
   setup() {
     const themeStore = useThemeStore();
@@ -42,7 +42,9 @@ export default {
 
     const circleStyle = computed(() => {
       return {
-        transform: `translate(${circleX.value}px, ${circleY.value}px) scale(${interacting.value ? 2 : 1})`,
+        transform: `translate(${circleX.value}px, ${circleY.value}px) scale(${
+          interacting.value ? 2 : 1
+        })`,
         opacity: isCircleVisible.value ? circleOpacity.value : 0,
       };
     });
@@ -55,6 +57,8 @@ export default {
           return require("@/assets/italic.svg");
         case "link":
           return require("@/assets/link.svg");
+        case "upload":
+          return require("@/assets/upload.svg");
       }
     });
 
@@ -135,7 +139,6 @@ export default {
 };
 </script>
 
-
 <style>
 #app {
   font-family: sf-pro, -apple-system, BlinkMacSystemFont, "Helvetica Neue",
@@ -210,7 +213,6 @@ button {
   --error: #dc5334;
   --error-outline: #b2533e;
   --error-bg: rgb(44, 34, 34);
-
 
   .circle {
     img {

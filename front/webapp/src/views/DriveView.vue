@@ -7,8 +7,7 @@
         </div>
         <div class="explorer">
           <div class="files">
-            <FileCard v-for="n in 10" />
-            <!-- <FileUpload @file-uploaded="handleFileUploaded" />
+            <FileUpload @file-uploaded="handleFileUploaded" />
             <div v-if="uploadedFileMetadata">
               <h3>File Metadata:</h3>
               <p><strong>Name:</strong> {{ uploadedFileMetadata.name }}</p>
@@ -18,7 +17,14 @@
               <p><strong>Type:</strong> {{ uploadedFileMetadata.type }}</p>
               <h3>File Content:</h3>
               <pre>{{ uploadedFileBase64 }}</pre>
-            </div> -->
+              <button
+                class="interactable"
+                @click="handleSubmit"
+                data-type="upload"
+              >
+                Upload File
+              </button>
+            </div>
           </div>
         </div>
       </div>
@@ -31,14 +37,17 @@ import FileUpload from "@/components/FileUpload.vue";
 import { useFileStore } from "@/stores/file-store";
 import { computed } from "vue";
 import FileCard from "@/components/FileCard.vue";
+import { useNotificationStore } from "@/stores/notification-store";
+import { sendFile } from "@/utils/fileUtils";
 
 export default {
   components: {
     FileUpload,
-    FileCard
+    FileCard,
   },
   setup() {
     const fileStore = useFileStore();
+    const notiStore = useNotificationStore();
 
     const uploadedFileMetadata = computed(() => fileStore.uploadedFileMetadata);
     const uploadedFileBase64 = computed(() => fileStore.uploadedFileBase64);
@@ -52,11 +61,20 @@ export default {
       uploadedFileMetadata,
       uploadedFileBase64,
       handleFileUploaded,
+      notiStore,
     };
+  },
+  methods: {
+    async handleSubmit() {
+      try {
+        await sendFile(this.uploadedFileMetadata, this.uploadedFileBase64);
+      } catch (e) {
+        throw e;
+      }
+    },
   },
 };
 </script>
-
 
 <style scoped>
 .drive {
@@ -68,9 +86,11 @@ export default {
   overflow: hidden;
 
   background-color: var(--primary);
-  background-image: radial-gradient(circle at 1dvw 1dvw,
-      var(--dots) 0.1dvw,
-      transparent 0);
+  background-image: radial-gradient(
+    circle at 1dvw 1dvw,
+    var(--dots) 0.1dvw,
+    transparent 0
+  );
   background-size: 2dvw 2dvw;
   color: var(--primary-text);
 

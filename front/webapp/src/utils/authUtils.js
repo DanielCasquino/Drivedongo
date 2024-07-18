@@ -1,6 +1,7 @@
 import axios from "axios";
 import router from "@/router/.";
 import { CustomError } from "./errorUtils";
+import { useNotificationStore } from "@/stores/notification-store";
 
 export function getToken() {
   return localStorage.getItem("token");
@@ -29,6 +30,7 @@ export async function checkAuth() {
     const formattedResponse = {
       statusCode: authResponse.data.statusCode,
       body: authResponse.data.body,
+      payload: authResponse.data.payload
     };
     switch (formattedResponse.statusCode) {
       case 404:
@@ -36,13 +38,11 @@ export async function checkAuth() {
       case 403:
         throw new CustomError.fromJSON(formattedResponse);
       case 200:
-        console.log("User token is valid");
-        return true;
+        return formattedResponse.payload;
     }
-  } catch (error) {
-    console.log(error);
+  } catch (e) {
     logout();
-    return false;
+    return null;
   }
 }
 
@@ -67,7 +67,7 @@ export async function signup(uid, pass) {
       default:
         throw CustomError.fromJSON(formattedResponse);
       case 200:
-        login(uid, pass);
+        login(uid, pass); // Also does notis
         break;
     }
   } catch (error) {
@@ -92,13 +92,13 @@ export async function login(uid, pass) {
       default:
         throw CustomError.fromJSON(formattedResponse);
       case 200:
+        const notiStore = useNotificationStore();
         saveToken(loginResponse);
+        notiStore.show(formattedResponse.statusCode, "Welcome, " + uid);
         router.push("/drive");
         break;
     }
   } catch (error) {
-    // alert(error.body);
     throw error;
   }
-  console.log("finished");
 }

@@ -27,7 +27,6 @@ const router = createRouter({
 });
 
 router.beforeEach(async (to, from, next) => {
-  console.log("Loading " + from.name + " to " + to.name);
   if (to.meta.requiresAuth) {
     const isAuthenticated = await checkAuth();
     if (!isAuthenticated) {

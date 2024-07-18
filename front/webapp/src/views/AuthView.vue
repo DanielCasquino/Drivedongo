@@ -9,14 +9,34 @@
         </div>
         <!-- Holds email and password input -->
         <form class="auth-form" @submit.prevent="handleSubmit">
-          <input class="form-input interactable" :class="{ 'input-error': uidError }" @click="clearErrors" type="text"
-            v-model="user_id" placeholder="Email" data-type="input" />
-          <input class="form-input interactable" :class="{ 'input-error': passError }" @click="clearErrors"
-            v-model="password" type="password" placeholder="Password" data-type="input" />
+          <input
+            class="form-input interactable"
+            :class="{ 'input-error': uidError }"
+            @click="clearErrors"
+            type="text"
+            v-model="user_id"
+            placeholder="Email"
+            data-type="input"
+          />
+          <input
+            class="form-input interactable"
+            :class="{ 'input-error': passError }"
+            @click="clearErrors"
+            v-model="password"
+            type="password"
+            placeholder="Password"
+            data-type="input"
+          />
         </form>
         <!-- Holds auth button -->
-        <button class="form-button readex-pro interactable" :class="{ 'button-disabled': !submitEnabled }"
-          @click="handleSubmit" :disabled="!submitEnabled" type="submit" data-type="link">
+        <button
+          class="form-button readex-pro interactable"
+          :class="{ 'button-disabled': !submitEnabled }"
+          @click="handleSubmit"
+          :disabled="!submitEnabled"
+          type="submit"
+          data-type="link"
+        >
           {{ isSignup ? "Sign Up" : "Log In" }}
         </button>
         <!-- Holds prompt to switch auth mode -->
@@ -26,7 +46,12 @@
               isSignup ? "Already have an account?" : "Don't have an account?"
             }}
           </p>
-          <a class="interactable" href="#" @click.prevent="toggleAuthMode" data-type="link">
+          <a
+            class="interactable"
+            href="#"
+            @click.prevent="toggleAuthMode"
+            data-type="link"
+          >
             &nbsp;{{ isSignup ? "Log in." : "Sign up." }}
           </a>
         </div>
@@ -50,7 +75,7 @@ export default {
       password: "",
       submitEnabled: true,
       uidError: false,
-      passError: false
+      passError: false,
     };
   },
   methods: {
@@ -70,14 +95,17 @@ export default {
         } else {
           await login(this.user_id, this.password);
         }
-      }
-      catch (e) {
+      } catch (e) {
         switch (e.statusCode) {
           case 400:
           case 403:
-          case 404: this.uidError = true; this.passError = true;
-            this.sendNoti(e.statusCode, e.body); break;
-          default: break;
+          case 404:
+            this.uidError = true;
+            this.passError = true;
+            this.sendNoti(e.statusCode, e.body);
+            break;
+          default:
+            break;
         }
       }
       this.submitEnabled = true;
@@ -100,7 +128,7 @@ export default {
     return {
       bucketImage,
       isDarkMode: computed(() => themeStore.get),
-      sendNoti: computed(() => notiStore.show)
+      sendNoti: computed(() => notiStore.show),
     };
   },
 };
@@ -116,9 +144,11 @@ export default {
   overflow: hidden;
 
   background-color: var(--primary);
-  background-image: radial-gradient(circle at 1dvw 1dvw,
-      var(--dots) 0.1dvw,
-      transparent 0);
+  background-image: radial-gradient(
+    circle at 1dvw 1dvw,
+    var(--dots) 0.1dvw,
+    transparent 0
+  );
   background-size: 2dvw 2dvw;
   color: var(--primary-text);
 
@@ -171,7 +201,7 @@ export default {
   color: var(--primary-text);
 }
 
-.form-input+.form-input {
+.form-input + .form-input {
   margin-top: 25px;
 }
 
@@ -196,7 +226,7 @@ input::placeholder {
   }
 
   33% {
-    transform: translateX(1dvw)
+    transform: translateX(1dvw);
   }
 
   66% {
