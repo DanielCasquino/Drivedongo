@@ -1,5 +1,6 @@
 import boto3
 import json
+import base64
 
 s3 = boto3.client('s3')
 bucket_name = 'bucket-drive-main'
@@ -9,9 +10,11 @@ queue_url = 'TU_URL_DE_COLA_SQS' # Pongan las de ustedes para que funcione
 def lambda_handler(event, context):
     user_id = event['user_id']
     file_name = event['file_name']
-    file_content = event['file_content']
 
     try:
+        file_content_base64 = event['file_content']
+        file_content = base64.b64decode(file_content_base64)
+
         s3.put_object(
             Bucket=bucket_name,
             Key=f"{user_id}/{file_name}",
