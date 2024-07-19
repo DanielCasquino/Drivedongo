@@ -1,15 +1,18 @@
 <template>
-  <button :class="[
-    'button interactable teleport',
-    { dark: isDarkMode, light: !isDarkMode },
-  ]" @click="doLogout">
+  <button
+    :class="[
+      'button interactable teleport',
+      { dark: isDarkMode, light: !isDarkMode },
+    ]"
+    @click="doLogout"
+  >
     <img :src="themeImage" alt="themeImage" draggable="false" />
   </button>
 </template>
 
 <script>
 import { useThemeStore } from "@/stores/theme-store";
-import { computed } from 'vue';
+import { computed } from "vue";
 import { logout } from "@/utils/authUtils";
 
 export default {
@@ -18,8 +21,8 @@ export default {
 
     const themeImage = computed(() =>
       themeStore.get
-        ? require('@/assets/logoutlight.svg')
-        : require('@/assets/logout.svg')
+        ? require("@/assets/logoutlight.svg")
+        : require("@/assets/logout.svg")
     );
 
     const isDarkMode = computed(() => themeStore.get);
@@ -36,7 +39,6 @@ export default {
   },
 };
 </script>
-
 
 <style scoped>
 .button {

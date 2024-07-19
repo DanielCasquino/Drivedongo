@@ -7,7 +7,7 @@ bucket_name = 'bucket-drive-main'
 sqs = boto3.client('sqs')
 sns = boto3.client('sns')
 queue_url = 'https://sqs.us-east-1.amazonaws.com/977155084989/drive-queue' # Pongan las de ustedes para que funcione
-sns_topic_arn = 'TU_ARN_DE_TEMA_SNS'  # Pongan las de ustedes para que funcione
+sns_topic_arn = 'arn:aws:sns:us-east-1:977155084989:Drivedongo'  # Pongan las de ustedes para que funcione
 
 def lambda_handler(event, context):
     user_id = event['user_id']
@@ -42,10 +42,10 @@ def lambda_handler(event, context):
 
         return {
             'statusCode': 200,
-            'body': json.dumps({'message': 'File uploaded successfully'})
+            'body': 'File uploaded successfully'
         }
     except Exception as e:
         return {
             'statusCode': 500,
-            'body': json.dumps({'Errors': str(e)})
+            'body': "Terrible, oremos"
         }

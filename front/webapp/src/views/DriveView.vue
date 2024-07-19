@@ -3,11 +3,17 @@
     <div class="content">
       <div class="bucket-wrapper">
         <div class="header readex-pro">
-          <h1>user@utec.edu.pe</h1>
+          <h1>File Explorer</h1>
         </div>
         <div class="explorer">
-          <div class="files">
-            <FileUpload @file-uploaded="handleFileUploaded" />
+          <div
+            class="files"
+            @dragover.prevent="onDragOver"
+            @dragleave="onDragLeave"
+            @drop.prevent="onDrop"
+            :class="{ 'drag-over': isDragOver }"
+          >
+            <!-- <FileUpload @file-uploaded="handleFileUploaded" />
             <div v-if="uploadedFileMetadata">
               <h3>File Metadata:</h3>
               <p><strong>Name:</strong> {{ uploadedFileMetadata.name }}</p>
@@ -24,6 +30,9 @@
               >
                 Upload File
               </button>
+            </div> -->
+            <div v-for="file in loadedFiles" :key="file.name">
+              <FileCard :file="file" />
             </div>
           </div>
         </div>
@@ -35,7 +44,7 @@
 <script>
 import FileUpload from "@/components/FileUpload.vue";
 import { useFileStore } from "@/stores/file-store";
-import { computed } from "vue";
+import { ref, computed, onMounted } from "vue";
 import FileCard from "@/components/FileCard.vue";
 import { useNotificationStore } from "@/stores/notification-store";
 import { sendFile } from "@/utils/fileUtils";
@@ -48,30 +57,69 @@ export default {
   setup() {
     const fileStore = useFileStore();
     const notiStore = useNotificationStore();
+    const isDragOver = ref(false);
 
     const uploadedFileMetadata = computed(() => fileStore.uploadedFileMetadata);
     const uploadedFileBase64 = computed(() => fileStore.uploadedFileBase64);
+    const loadedFiles = computed(() => fileStore.loadedFiles);
 
     const handleFileUploaded = (payload) => {
       fileStore.setFileMetadata(payload.fileMetadata);
       fileStore.setFileBase64(payload.fileBase64);
     };
 
-    return {
-      uploadedFileMetadata,
-      uploadedFileBase64,
-      handleFileUploaded,
-      notiStore,
+    const onDragOver = () => {
+      isDragOver.value = true;
     };
-  },
-  methods: {
-    async handleSubmit() {
+
+    const onDragLeave = () => {
+      isDragOver.value = false;
+    };
+
+    const onDrop = async (event) => {
+      isDragOver.value = false;
+      const file = event.dataTransfer.files[0];
+      if (file) {
+        const reader = new FileReader();
+        reader.onload = async (e) => {
+          const base64 = e.target.result;
+          fileStore.setFileBase64(base64);
+          fileStore.setFileMetadata({
+            name: file.name,
+            size: file.size,
+            type: file.type,
+          });
+          await handleSubmit();
+        };
+        reader.readAsDataURL(file);
+      }
+    };
+
+    onMounted(() => {
+      fileStore.fetchFiles();
+    });
+
+    const handleSubmit = async () => {
       try {
-        await sendFile(this.uploadedFileMetadata, this.uploadedFileBase64);
+        await sendFile(uploadedFileMetadata.value, uploadedFileBase64.value);
+        await fileStore.fetchFiles();
       } catch (e) {
         throw e;
       }
-    },
+    };
+
+    return {
+      uploadedFileMetadata,
+      uploadedFileBase64,
+      loadedFiles,
+      handleFileUploaded,
+      handleSubmit,
+      notiStore,
+      isDragOver,
+      onDragOver,
+      onDragLeave,
+      onDrop,
+    };
   },
 };
 </script>
@@ -149,6 +197,7 @@ export default {
   display: flex;
   flex: 1;
   overflow: hidden;
+  background-color: var(--secondary);
 }
 
 .navbar {
@@ -162,10 +211,14 @@ export default {
   box-sizing: border-box;
   overflow: auto;
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+  grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
   gap: 16px;
   /* Adjust gap between items as needed */
   padding: 16px;
   /* Adjust padding as needed */
+}
+
+.files.drag-over {
+  border: 2px dashed #aaa;
 }
 </style>

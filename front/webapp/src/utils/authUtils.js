@@ -2,12 +2,15 @@ import axios from "axios";
 import router from "@/router/.";
 import { CustomError } from "./errorUtils";
 import { useNotificationStore } from "@/stores/notification-store";
+import { useFileStore } from "@/stores/file-store";
 
 export function getToken() {
   return localStorage.getItem("token");
 }
 
 export function logout() {
+  const fileStore = useFileStore();
+  fileStore.clear();
   localStorage.removeItem("token");
   console.log("User token is being deleted");
   router.push("/");
@@ -30,7 +33,7 @@ export async function checkAuth() {
     const formattedResponse = {
       statusCode: authResponse.data.statusCode,
       body: authResponse.data.body,
-      payload: authResponse.data.payload
+      payload: authResponse.data.payload,
     };
     switch (formattedResponse.statusCode) {
       case 404:
@@ -96,7 +99,7 @@ export async function login(uid, pass) {
         router.push("/drive");
         break;
       default:
-          throw CustomError.fromJSON(formattedResponse);
+        throw CustomError.fromJSON(formattedResponse);
     }
   } catch (e) {
     notiStore.show(e.statusCode, e.body);

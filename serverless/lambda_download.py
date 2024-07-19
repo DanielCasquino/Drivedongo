@@ -5,8 +5,8 @@ s3 = boto3.client('s3')
 bucket_name = 'bucket-drive-main'
 
 def lambda_handler(event, context):
-    user_id = event['user_id']
-    file_name = event['file_name']
+    user_id = event.get("user_id")
+    file_name = event.get("file_name")
 
     try:
         s3.head_object(
@@ -25,10 +25,8 @@ def lambda_handler(event, context):
 
         return {
             'statusCode': 200,
-            'body': json.dumps({
-                'file_name': file_name,
-                'download_url': pre_signed_url
-            })
+            'body': "Downloading file...",
+            'payload': pre_signed_url
         }
     except s3.exceptions.NoSuchKey:
         return {
