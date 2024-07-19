@@ -263,5 +263,7 @@ button {
   height: calc(45dvh - 210px);
   /* 50dvh - 210px, half page minus og auth box */
   pointer-events: none;
+  overflow: hidden;
+  box-sizing: border-box;
 }
 </style>

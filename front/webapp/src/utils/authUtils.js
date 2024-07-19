@@ -76,6 +76,7 @@ export async function signup(uid, pass) {
 }
 
 export async function login(uid, pass) {
+  const notiStore = useNotificationStore();
   try {
     const loginResponse = await axios.post(
       "https://ao9ww2ed5d.execute-api.us-east-1.amazonaws.com/dev/auth/login",
@@ -89,16 +90,16 @@ export async function login(uid, pass) {
       body: loginResponse.data.body,
     };
     switch (formattedResponse.statusCode) {
-      default:
-        throw CustomError.fromJSON(formattedResponse);
       case 200:
-        const notiStore = useNotificationStore();
         saveToken(loginResponse);
         notiStore.show(formattedResponse.statusCode, "Welcome, " + uid);
         router.push("/drive");
         break;
+      default:
+          throw CustomError.fromJSON(formattedResponse);
     }
-  } catch (error) {
-    throw error;
+  } catch (e) {
+    notiStore.show(e.statusCode, e.body);
+    throw e; // Throws error to vue component that called the function
   }
 }

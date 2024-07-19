@@ -96,17 +96,8 @@ export default {
           await login(this.user_id, this.password);
         }
       } catch (e) {
-        switch (e.statusCode) {
-          case 400:
-          case 403:
-          case 404:
-            this.uidError = true;
-            this.passError = true;
-            this.sendNoti(e.statusCode, e.body);
-            break;
-          default:
-            break;
-        }
+        this.uidError = true;
+        this.passError = true;
       }
       this.submitEnabled = true;
       // Prevent multiple submissions

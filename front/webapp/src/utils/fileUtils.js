@@ -4,6 +4,7 @@ import { checkAuth } from "./authUtils";
 import { useNotificationStore } from "@/stores/notification-store";
 
 export async function sendFile(metadata, b64){
+  const notiStore = useNotificationStore();
     try{
         const uid = await checkAuth();
         const uploadResponse = await axios.post(
@@ -26,7 +27,6 @@ export async function sendFile(metadata, b64){
 
           switch (formattedResponse.statusCode) {
             case 201:
-                const notiStore = useNotificationStore();
                 notiStore.show(formattedResponse.statusCode, formattedResponse.body);
               break;
             default:
@@ -34,7 +34,6 @@ export async function sendFile(metadata, b64){
           }
     }
     catch(e){
-        const notiStore = useNotificationStore();
-        notiStore.show(500, "Terrible oremos");
+        notiStore.show(e.statusCode, e.body);
     }
 }
