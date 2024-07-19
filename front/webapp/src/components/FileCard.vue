@@ -108,11 +108,12 @@ export default defineComponent({
         : require("@/assets/delete.svg");
     });
 
-    const handleDownload = () => {
+    const handleDownload = async () => {
       const name = truncatedFileName.value; // Use the truncated name here
-      const url = downloadFile(name);
-      console.log(url);
-      window.open(url, "_blank");
+      try {
+        const url = downloadFile(name);
+        window.open(url, "_blank");
+      } catch (e) {}
     };
 
     const handleDelete = async () => {

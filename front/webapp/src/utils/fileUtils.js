@@ -86,6 +86,7 @@ export async function deleteFile(fileName) {
       case 200:
         console.log("Reached 200");
         notiStore.show(formattedResponse.statusCode, formattedResponse.body);
+        return formattedResponse.payload;
       default:
         throw CustomError.fromJSON(formattedResponse);
     }
