@@ -1,4 +1,5 @@
 import boto3
+import json
 import base64
 
 s3 = boto3.client('s3')
@@ -19,7 +20,8 @@ def lambda_handler(event, context):
                 file_info = {
                     'file_name': obj['Key'],
                     'upload_date': obj['LastModified'].strftime('%Y-%m-%d %H:%M:%S'),
-                    'file_type': obj['Key'].split('.')[-1]
+                    'file_type': obj['Key'].split('.')[-1],
+                    'size': obj['Size']
                 }
 
                 if file_info['file_type'].lower() in ['jpg', 'jpeg', 'png', 'gif']:

@@ -5,7 +5,9 @@ import base64
 s3 = boto3.client('s3')
 bucket_name = 'bucket-drive-main'
 sqs = boto3.client('sqs')
+sns = boto3.client('sns')
 queue_url = 'https://sqs.us-east-1.amazonaws.com/977155084989/drive-queue' # Pongan las de ustedes para que funcione
+sns_topic_arn = 'TU_ARN_DE_TEMA_SNS'  # Pongan las de ustedes para que funcione
 
 def lambda_handler(event, context):
     user_id = event['user_id']
@@ -26,6 +28,16 @@ def lambda_handler(event, context):
         sqs.send_message(
             QueueUrl=queue_url,
             MessageBody=json.dumps({'user_id': user_id, 'file_name': file_name})
+        )
+
+        sns.publish(
+            TopicArn=sns_topic_arn,
+            Message=json.dumps({
+                'user_id': user_id,
+                'file_name': file_name,
+                'message': 'File uploaded successfully'
+            }),
+            Subject='File Upload Notification'
         )
 
         return {
